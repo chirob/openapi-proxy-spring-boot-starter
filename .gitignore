@@ -1,0 +1,12 @@
+# ignore all . hidden files and . hidden folders
+.*
+!.gitignore
+
+HELP.md
+
+### Maven ###
+/target
+pom.xml.*
+dependency-reduced-pom.xml
+release.properties
+buildNumber.properties
