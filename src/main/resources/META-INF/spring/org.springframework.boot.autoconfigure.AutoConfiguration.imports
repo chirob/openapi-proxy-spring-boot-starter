@@ -1,2 +1,1 @@
-com.swisscom.openapi.reverseproxy.config.ProxyConfiguration
-com.swisscom.openapi.reverseproxy.config.ProxyOptionsProcessor
+com.swisscom.openapi.reverseproxy.BootConfiguration

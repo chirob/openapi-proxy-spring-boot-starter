@@ -14,17 +14,12 @@
  * limitations under the License.
  */
 
-package com.swisscom.openapi.reverseproxy.test.model;
+/**
+ *
+ * The util package.
+ *
+ * @author Roberto Chiaretti
+ * @since 1.0.0
+ */
 
-import lombok.Data;
-import lombok.ToString;
-
-@ToString
-@Data
-public class Status {
-
-    private boolean verified;
-
-    private int sentCount;
-
-}
+package com.swisscom.openapi.reverseproxy.util;

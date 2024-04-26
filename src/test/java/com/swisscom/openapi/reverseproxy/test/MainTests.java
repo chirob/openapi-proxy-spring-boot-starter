@@ -14,17 +14,24 @@
  * limitations under the License.
  */
 
-package com.swisscom.openapi.reverseproxy.test.model;
+package com.swisscom.openapi.reverseproxy.test;
 
-import lombok.Data;
-import lombok.ToString;
+import lombok.extern.slf4j.Slf4j;
 
-@ToString
-@Data
-public class Status {
+import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.web.client.RestTemplate;
 
-    private boolean verified;
+@Slf4j
+@SpringBootTest(classes = TestApplication.class, webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
+public class MainTests {
 
-    private int sentCount;
+    RestTemplate restTemplate = new RestTemplate();
+
+    @Test
+    public void testGetCats() {
+        Object response = this.restTemplate.getForObject("http://localhost:8080/test-proxy/cats", Object.class);
+        log.info("{}", response);
+    }
 
 }

@@ -1,3 +1,19 @@
+/*
+ * Copyright 2024-2099 Swisscom (Schweiz) AG.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.swisscom.openapi.reverseproxy.config;
 
 import java.util.Arrays;
@@ -10,34 +26,35 @@ import lombok.Getter;
 
 public class AnnotationProxyOptions extends SpelEvaluatedProxyOptions {
 
-	private final Proxy annotation;
-	@Getter
-	private final String beanName;
+    private final Proxy annotation;
 
-	protected AnnotationProxyOptions(SpelExpressionEvaluator evaluator, Proxy annotation, String beanName) {
-		super(evaluator);
-		this.annotation = annotation;
-		this.beanName = beanName;
-	}
+    @Getter
+    private final String beanName;
 
-	protected String specification() {
-		return annotation.specification();
-	}
+    protected AnnotationProxyOptions(SpelExpressionEvaluator evaluator, Proxy annotation, String beanName) {
+        super(evaluator);
+        this.annotation = annotation;
+        this.beanName = beanName;
+    }
 
-	protected String target() {
-		return annotation.target();
-	}
+    protected String specification() {
+        return this.annotation.specification();
+    }
 
-	protected String prefix() {
-		return annotation.options().prefix();
-	}
+    protected String target() {
+        return this.annotation.target();
+    }
 
-	protected List<String> ignoredRequestHeaders() {
-		return Arrays.stream(annotation.options().ignoredRequestHeaders()).toList();
-	}
+    protected String prefix() {
+        return this.annotation.options().prefix();
+    }
 
-	protected List<String> ignoredResponseHeaders() {
-		return Arrays.stream(annotation.options().ignoredResponseHeaders()).toList();
-	}
+    protected List<String> ignoredRequestHeaders() {
+        return Arrays.stream(this.annotation.options().ignoredRequestHeaders()).toList();
+    }
+
+    protected List<String> ignoredResponseHeaders() {
+        return Arrays.stream(this.annotation.options().ignoredResponseHeaders()).toList();
+    }
 
 }
