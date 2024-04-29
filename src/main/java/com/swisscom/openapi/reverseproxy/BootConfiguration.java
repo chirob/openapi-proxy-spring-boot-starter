@@ -16,47 +16,11 @@
 
 package com.swisscom.openapi.reverseproxy;
 
-import java.util.function.Supplier;
-
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
-import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.swisscom.openapi.reverseproxy.openapi.OpenApiProvider;
-
-import io.swagger.v3.oas.models.OpenAPI;
-import jakarta.servlet.http.HttpServletRequest;
 
 @ComponentScan
 @AutoConfiguration
 public class BootConfiguration {
-
-    @ConditionalOnMissingBean(name = "proxyObjectMapper")
-    @Bean
-    public ObjectMapper proxyObjectMapper() {
-        return new ObjectMapper();
-    }
-
-    @ConditionalOnMissingBean({ OpenAPI.class, OpenApiProvider.class })
-    @Bean
-    public OpenAPI proxyOpenApi() {
-        return new OpenAPI();
-    }
-
-    @ConditionalOnMissingBean(name = "proxyRequestSupplier")
-    @Bean
-    public Supplier<HttpServletRequest> proxyRequestSupplier(HttpServletRequest request) {
-        return () -> request;
-    }
-
-    @Bean
-    public Supplier<RequestMappingHandlerMapping> proxyRequestMappingHandlerMappingSupplier(
-            @Qualifier("requestMappingHandlerMapping") RequestMappingHandlerMapping requestMappingHandlerMapping) {
-        return () -> requestMappingHandlerMapping;
-    }
 
 }

@@ -19,16 +19,9 @@ package com.swisscom.openapi.reverseproxy.config;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
-import org.springframework.stereotype.Component;
-
 import io.swagger.v3.oas.models.servers.Server;
-import lombok.NoArgsConstructor;
 
 @SuppressWarnings("serial")
-@NoArgsConstructor
-@ConditionalOnMissingBean(ProxyServers.class)
-@Component
 public class ProxyServers extends ArrayList<Server> {
 
     public ProxyServers(List<String> urls) {

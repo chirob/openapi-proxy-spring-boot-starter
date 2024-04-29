@@ -24,6 +24,8 @@ import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.config.BeanPostProcessor;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.context.support.GenericApplicationContext;
 import org.springframework.stereotype.Component;
@@ -100,6 +102,36 @@ public class ProxyOptionsProcessor implements BeanPostProcessor {
                 new RequestMappingRegistrationHandler(this.proxyRequestMappingHandlerMappingSupplier),
                 this.openApiProvider.orElse(() -> this.openApi), this.openApiRegistry, this.proxyServers);
         this.proxyAnnotatedBeanNames = List.of(applicationContext.getBeanNamesForAnnotation(Proxy.class));
+    }
+
+    @ConditionalOnMissingBean(ProxyServers.class)
+    @Bean
+    public ProxyServers proxyServers() {
+        return new ProxyServers(List.of());
+    }
+
+    @ConditionalOnMissingBean(name = "proxyObjectMapper")
+    @Bean
+    public ObjectMapper proxyObjectMapper() {
+        return new ObjectMapper();
+    }
+
+    @ConditionalOnMissingBean({ OpenAPI.class, OpenApiProvider.class })
+    @Bean
+    public OpenAPI proxyOpenApi() {
+        return new OpenAPI();
+    }
+
+    @ConditionalOnMissingBean(name = "proxyRequestSupplier")
+    @Bean
+    public Supplier<HttpServletRequest> proxyRequestSupplier(HttpServletRequest request) {
+        return () -> request;
+    }
+
+    @Bean
+    public Supplier<RequestMappingHandlerMapping> proxyRequestMappingHandlerMappingSupplier(
+            @Qualifier("requestMappingHandlerMapping") RequestMappingHandlerMapping requestMappingHandlerMapping) {
+        return () -> requestMappingHandlerMapping;
     }
 
     @Override

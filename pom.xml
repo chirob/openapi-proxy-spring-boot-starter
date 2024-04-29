@@ -14,7 +14,6 @@
     <properties>
         <io.swagger.core.v3.swagger-parser.version>2.1.16</io.swagger.core.v3.swagger-parser.version>
         <org.springdoc.springdoc-openapi-starter-webmvc-ui.version>2.2.0</org.springdoc.springdoc-openapi-starter-webmvc-ui.version>
-        <project.basedir>${basedir}</project.basedir>
     </properties>
 
     <dependencies>
@@ -31,12 +30,7 @@
             <artifactId>swagger-parser</artifactId>
             <version>${io.swagger.core.v3.swagger-parser.version}</version>
         </dependency>
-        <dependency>
-            <groupId>io.swagger.parser.v3</groupId>
-            <artifactId>swagger-parser-v3</artifactId>
-            <version>${io.swagger.core.v3.swagger-parser.version}</version>
-        </dependency>
-
+        
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
