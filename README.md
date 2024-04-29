@@ -24,380 +24,298 @@ OpenAPI Proxy Spring Boot Starter offers the following benefits:
 * Encrypt and decrypt property values (symmetric or asymmetric)
 * Embeddable easily in a Spring Boot application using `@EnableConfigServer`
 
-[[quick-start]]
-= Quick Start
+# json-sKema
 
-[[sample-application]]
-== Sample Application
+_json-sKema is a [Json Schema](https://json-schema.org/) validator library for the Java Virtual Machine. It implements the [draft 2020-12](https://json-schema.org/draft/2020-12/json-schema-validation.html) specification._
 
-You can find a sample application https://github.com/spring-cloud/spring-cloud-config/tree/master/spring-cloud-config-sample[here].
-It is a Spring Boot application, so you can run it by using the usual mechanisms (for instance, `mvn spring-boot:run`).
-When it runs, it looks for the config server on `http://localhost:8888` (a configurable default), so you can run the server as well to see it all working together.
-
-The sample has a test case where the config server is also started in the same JVM (with a different port), and the test asserts that an
-environment property from the git configuration repo is present.
-To change the location of the config server, you can set `spring.cloud.config.uri` in `bootstrap.yml` (or in system properties and other places).
-
-The test case has a `main()` method that runs the server in the same way (watch the logs for its port), so you can run the whole system in one process and play with it (for example, you can run the `main()` method in your IDE).
-The `main()` method uses `target/config` for the working directory of the git repository, so you can make local changes there and see them reflected in the running app. The following example shows a session of tinkering with the test case:
-
-----
-$ curl localhost:8080/env/sample
-mytest
-$ vi target/config/mytest.properties
-.. change value of "sample", optionally commit
-$ curl -X POST localhost:8080/refresh
-["sample"]
-$ curl localhost:8080/env/sample
-sampleValue
-----
-
-The refresh endpoint reports that the "sample" property changed.
-
-[[building]]
-= Building
-
-:jdkversion: 17
-
-[[basic-compile-and-test]]
-== Basic Compile and Test
-
-To build the source you will need to install JDK {jdkversion}.
-
-Spring Cloud uses Maven for most build-related activities, and you
-should be able to get off the ground quite quickly by cloning the
-project you are interested in and typing
-
-----
-$ ./mvnw install
-----
-
-NOTE: You can also install Maven (>=3.3.3) yourself and run the `mvn` command
-in place of `./mvnw` in the examples below. If you do that you also
-might need to add `-P spring` if your local Maven settings do not
-contain repository declarations for spring pre-release artifacts.
-
-NOTE: Be aware that you might need to increase the amount of memory
-available to Maven by setting a `MAVEN_OPTS` environment variable with
-a value like `-Xmx512m -XX:MaxPermSize=128m`. We try to cover this in
-the `.mvn` configuration, so if you find you have to do it to make a
-build succeed, please raise a ticket to get the settings added to
-source control.
-
-The projects that require middleware (i.e. Redis) for testing generally
-require that a local instance of [Docker](https://www.docker.com/get-started) is installed and running.
-
-[[documentation]]
-== Documentation
-
-The spring-cloud-build module has a "docs" profile, and if you switch
-that on it will try to build asciidoc sources using https://docs.antora.org/antora/latest/[Antora] from
-`modules/ROOT/`.
-
-As part of that process it will look for a
-`docs/src/main/asciidoc/README.adoc` and process it by loading all the includes, but not
-parsing or rendering it, just copying it to `${main.basedir}`
-(defaults to `$\{basedir}`, i.e. the root of the project). If there are
-any changes in the README it will then show up after a Maven build as
-a modified file in the correct place. Just commit it and push the change.
-
-[[working-with-the-code]]
-== Working with the code
-If you don't have an IDE preference we would recommend that you use
-https://www.springsource.com/developer/sts[Spring Tools Suite] or
-https://eclipse.org[Eclipse] when working with the code. We use the
-https://eclipse.org/m2e/[m2eclipse] eclipse plugin for maven support. Other IDEs and tools
-should also work without issue as long as they use Maven 3.3.3 or better.
-
-[[activate-the-spring-maven-profile]]
-=== Activate the Spring Maven profile
-Spring Cloud projects require the 'spring' Maven profile to be activated to resolve
-the spring milestone and snapshot repositories. Use your preferred IDE to set this
-profile to be active, or you may experience build errors.
-
-[[importing-into-eclipse-with-m2eclipse]]
-=== Importing into eclipse with m2eclipse
-We recommend the https://eclipse.org/m2e/[m2eclipse] eclipse plugin when working with
-eclipse. If you don't already have m2eclipse installed it is available from the "eclipse
-marketplace".
-
-NOTE: Older versions of m2e do not support Maven 3.3, so once the
-projects are imported into Eclipse you will also need to tell
-m2eclipse to use the right profile for the projects.  If you
-see many different errors related to the POMs in the projects, check
-that you have an up to date installation.  If you can't upgrade m2e,
-add the "spring" profile to your `settings.xml`. Alternatively you can
-copy the repository settings from the "spring" profile of the parent
-pom into your `settings.xml`.
-
-[[importing-into-eclipse-without-m2eclipse]]
-=== Importing into eclipse without m2eclipse
-If you prefer not to use m2eclipse you can generate eclipse project metadata using the
-following command:
-
-[indent=0]
-----
-    $ ./mvnw eclipse:eclipse
-----
-
-The generated eclipse projects can be imported by selecting `import existing projects`
-from the `file` menu.
+Are you new to JSON Schema? Get started with [Understanding JSON Schema](https://json-schema.org/understanding-json-schema/)!
 
 
-[[jce]]
-== JCE
 
-If you get an exception due to "Illegal key size" and you are using Sun’s JDK, you need to install the Java Cryptography Extension (JCE) Unlimited Strength Jurisdiction Policy Files.
-See the following links for more information:
+## Installation
 
-https://www.oracle.com/technetwork/java/javase/downloads/jce-6-download-429243.html[Java 6 JCE]
+### Maven
 
-https://www.oracle.com/technetwork/java/javase/downloads/jce-7-download-432124.html[Java 7 JCE]
+Add the following dependency to the `<dependencies>` section of your project:
 
-https://www.oracle.com/technetwork/java/javase/downloads/jce8-download-2133166.html[Java 8 JCE]
-
-Extract the JCE files into the `JDK/jre/lib/security` folder for whichever version of JRE/JDK x64/x86 you use.
-
-[[contributing]]
-= Contributing
-
-:spring-cloud-build-branch: main
-
-Spring Cloud is released under the non-restrictive Apache 2.0 license,
-and follows a very standard Github development process, using Github
-tracker for issues and merging pull requests into main. If you want
-to contribute even something trivial please do not hesitate, but
-follow the guidelines below.
-
-[[sign-the-contributor-license-agreement]]
-== Sign the Contributor License Agreement
-
-Before we accept a non-trivial patch or pull request we will need you to sign the
-https://cla.pivotal.io/sign/spring[Contributor License Agreement].
-Signing the contributor's agreement does not grant anyone commit rights to the main
-repository, but it does mean that we can accept your contributions, and you will get an
-author credit if we do.  Active contributors might be asked to join the core team, and
-given the ability to merge pull requests.
-
-[[code-of-conduct]]
-== Code of Conduct
-This project adheres to the Contributor Covenant https://github.com/spring-cloud/spring-cloud-build/blob/main/docs/src/main/asciidoc/code-of-conduct.adoc[code of
-conduct]. By participating, you  are expected to uphold this code. Please report
-unacceptable behavior to spring-code-of-conduct@pivotal.io.
-
-[[code-conventions-and-housekeeping]]
-== Code Conventions and Housekeeping
-None of these is essential for a pull request, but they will all help.  They can also be
-added after the original pull request but before a merge.
-
-* Use the Spring Framework code format conventions. If you use Eclipse
-  you can import formatter settings using the
-  `eclipse-code-formatter.xml` file from the
-  https://raw.githubusercontent.com/spring-cloud/spring-cloud-build/main/spring-cloud-dependencies-parent/eclipse-code-formatter.xml[Spring
-  Cloud Build] project. If using IntelliJ, you can use the
-  https://plugins.jetbrains.com/plugin/6546[Eclipse Code Formatter
-  Plugin] to import the same file.
-* Make sure all new `.java` files to have a simple Javadoc class comment with at least an
-  `@author` tag identifying you, and preferably at least a paragraph on what the class is
-  for.
-* Add the ASF license header comment to all new `.java` files (copy from existing files
-  in the project)
-* Add yourself as an `@author` to the .java files that you modify substantially (more
-  than cosmetic changes).
-* Add some Javadocs and, if you change the namespace, some XSD doc elements.
-* A few unit tests would help a lot as well -- someone has to do it.
-* If no-one else is using your branch, please rebase it against the current main (or
-  other target branch in the main project).
-* When writing a commit message please follow https://tbaggery.com/2008/04/19/a-note-about-git-commit-messages.html[these conventions],
-  if you are fixing an existing issue please add `Fixes gh-XXXX` at the end of the commit
-  message (where XXXX is the issue number).
-
-[[checkstyle]]
-== Checkstyle
-
-Spring Cloud Build comes with a set of checkstyle rules. You can find them in the `spring-cloud-build-tools` module. The most notable files under the module are:
-
-.spring-cloud-build-tools/
-----
-└── src
-    ├── checkstyle
-    │   └── checkstyle-suppressions.xml <3>
-    └── main
-        └── resources
-            ├── checkstyle-header.txt <2>
-            └── checkstyle.xml <1>
-----
-<1> Default Checkstyle rules
-<2> File header setup
-<3> Default suppression rules
-
-[[checkstyle-configuration]]
-=== Checkstyle configuration
-
-Checkstyle rules are *disabled by default*. To add checkstyle to your project just define the following properties and plugins.
-
-.pom.xml
-----
-<properties>
-<maven-checkstyle-plugin.failsOnError>true</maven-checkstyle-plugin.failsOnError> <1>
-        <maven-checkstyle-plugin.failsOnViolation>true
-        </maven-checkstyle-plugin.failsOnViolation> <2>
-        <maven-checkstyle-plugin.includeTestSourceDirectory>true
-        </maven-checkstyle-plugin.includeTestSourceDirectory> <3>
-</properties>
-
-<build>
-        <plugins>
-            <plugin> <4>
-                <groupId>io.spring.javaformat</groupId>
-                <artifactId>spring-javaformat-maven-plugin</artifactId>
-            </plugin>
-            <plugin> <5>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-checkstyle-plugin</artifactId>
-            </plugin>
-        </plugins>
-
-    <reporting>
-        <plugins>
-            <plugin> <5>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-checkstyle-plugin</artifactId>
-            </plugin>
-        </plugins>
-    </reporting>
-</build>
-----
-<1> Fails the build upon Checkstyle errors
-<2> Fails the build upon Checkstyle violations
-<3> Checkstyle analyzes also the test sources
-<4> Add the Spring Java Format plugin that will reformat your code to pass most of the Checkstyle formatting rules
-<5> Add checkstyle plugin to your build and reporting phases
-
-If you need to suppress some rules (e.g. line length needs to be longer), then it's enough for you to define a file under `${project.root}/src/checkstyle/checkstyle-suppressions.xml` with your suppressions. Example:
-
-.projectRoot/src/checkstyle/checkstyle-suppresions.xml
-----
-<?xml version="1.0"?>
-<!DOCTYPE suppressions PUBLIC
-        "-//Puppy Crawl//DTD Suppressions 1.1//EN"
-        "https://www.puppycrawl.com/dtds/suppressions_1_1.dtd">
-<suppressions>
-    <suppress files=".*ConfigServerApplication\.java" checks="HideUtilityClassConstructor"/>
-    <suppress files=".*ConfigClientWatch\.java" checks="LineLengthCheck"/>
-</suppressions>
-----
-
-It's advisable to copy the `${spring-cloud-build.rootFolder}/.editorconfig` and `${spring-cloud-build.rootFolder}/.springformat` to your project. That way, some default formatting rules will be applied. You can do so by running this script:
-
-```bash
-$ curl https://raw.githubusercontent.com/spring-cloud/spring-cloud-build/main/.editorconfig -o .editorconfig
-$ touch .springformat
+```xml
+<dependency>
+    <groupId>com.github.erosb</groupId>
+    <artifactId>json-sKema</artifactId>
+    <version>0.15.0</version>
+</dependency>
 ```
 
-[[ide-setup]]
-== IDE setup
+### Gradle
 
-[[intellij-idea]]
-=== Intellij IDEA
+```groovy
+dependencies {
+    implementation("com.github.erosb:json-sKema:0.15.0")
+}
+```
 
-In order to setup Intellij you should import our coding conventions, inspection profiles and set up the checkstyle plugin.
-The following files can be found in the https://github.com/spring-cloud/spring-cloud-build/tree/main/spring-cloud-build-tools[Spring Cloud Build] project.
+## Usage
 
-.spring-cloud-build-tools/
-----
-└── src
-    ├── checkstyle
-    │   └── checkstyle-suppressions.xml <3>
-    └── main
-        └── resources
-            ├── checkstyle-header.txt <2>
-            ├── checkstyle.xml <1>
-            └── intellij
-                ├── Intellij_Project_Defaults.xml <4>
-                └── Intellij_Spring_Boot_Java_Conventions.xml <5>
-----
-<1> Default Checkstyle rules
-<2> File header setup
-<3> Default suppression rules
-<4> Project defaults for Intellij that apply most of Checkstyle rules
-<5> Project style conventions for Intellij that apply most of Checkstyle rules
+### Hello-world
 
-.Code style
+[Complete source](https://github.com/erosb/json-sKema-examples/blob/master/src/main/java/com/github/erosb/jsonsKema/examples/HelloWorld.java)
 
-image::https://raw.githubusercontent.com/spring-cloud/spring-cloud-build/main/docs/modules/ROOT/assets/images/intellij-code-style.png[Code style]
+```java
+// parse the schema JSON as string
+JsonValue schemaJson = new JsonParser("""
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+        "age": {
+            "type": "number",
+            "minimum": 0
+        },
+        "name": {
+            "type": "string"
+        },
+        "email": {
+            "type": "string",
+            "format": "email"
+        }
+    }
+}
+""").parse();
+// map the raw json to a reusable Schema instance
+Schema schema = new SchemaLoader(schemaJson).load();
 
-Go to `File` -> `Settings` -> `Editor` -> `Code style`. There click on the icon next to the `Scheme` section. There, click on the `Import Scheme` value and pick the `Intellij IDEA code style XML` option. Import the `spring-cloud-build-tools/src/main/resources/intellij/Intellij_Spring_Boot_Java_Conventions.xml` file.
+// create a validator instance for each validation (one-time use object)
+Validator validator = Validator.create(schema, new ValidatorConfig(FormatValidationPolicy.ALWAYS));
 
-.Inspection profiles
+// parse the input instance to validate against the schema
+JsonValue instance = new JsonParser("""
+{
+    "age": -5,
+    "name": null,
+    "email": "invalid"
+}
+""").parse();
 
-image::https://raw.githubusercontent.com/spring-cloud/spring-cloud-build/main/docs/modules/ROOT/assets/images/intellij-inspections.png[Code style]
+// run the validation
+ValidationFailure failure = validator.validate(instance);
 
-Go to `File` -> `Settings` -> `Editor` -> `Inspections`. There click on the icon next to the `Profile` section. There, click on the `Import Profile` and import the `spring-cloud-build-tools/src/main/resources/intellij/Intellij_Project_Defaults.xml` file.
+// print the validation failures (if any)
+System.out.println(failure);
+```
 
-.Checkstyle
+### Loading a schema file from URL
 
-To have Intellij work with Checkstyle, you have to install the `Checkstyle` plugin. It's advisable to also install the `Assertions2Assertj` to automatically convert the JUnit assertions
+```java
+// HTTP(s) protocol is also supported
+Schema schema = SchemaLoader.forURL("classpath:///path/to/your/schema.json").load();
 
-image::https://raw.githubusercontent.com/spring-cloud/spring-cloud-build/main/docs/modules/ROOT/assets/images/intellij-checkstyle.png[Checkstyle]
+// create a validator instance for each validation (one-time use object) 
+Validator validator = Validator.forSchema(schema);
+// ...
+```
 
-Go to `File` -> `Settings` -> `Other settings` -> `Checkstyle`. There click on the `+` icon in the `Configuration file` section. There, you'll have to define where the checkstyle rules should be picked from. In the image above, we've picked the rules from the cloned Spring Cloud Build repository. However, you can point to the Spring Cloud Build's GitHub repository (e.g. for the `checkstyle.xml` : `https://raw.githubusercontent.com/spring-cloud/spring-cloud-build/main/spring-cloud-build-tools/src/main/resources/checkstyle.xml`). We need to provide the following variables:
+### Pre-registering schemas by URI before schema loading
 
-- `checkstyle.header.file` - please point it to the Spring Cloud Build's, `spring-cloud-build-tools/src/main/resources/checkstyle-header.txt` file either in your cloned repo or via the `https://raw.githubusercontent.com/spring-cloud/spring-cloud-build/main/spring-cloud-build-tools/src/main/resources/checkstyle-header.txt` URL.
-- `checkstyle.suppressions.file` - default suppressions. Please point it to the Spring Cloud Build's, `spring-cloud-build-tools/src/checkstyle/checkstyle-suppressions.xml` file either in your cloned repo or via the `https://raw.githubusercontent.com/spring-cloud/spring-cloud-build/main/spring-cloud-build-tools/src/checkstyle/checkstyle-suppressions.xml` URL.
-- `checkstyle.additional.suppressions.file` - this variable corresponds to suppressions in your local project. E.g. you're working on `spring-cloud-contract`. Then point to the `project-root/src/checkstyle/checkstyle-suppressions.xml` folder. Example for `spring-cloud-contract` would be: `/home/username/spring-cloud-contract/src/checkstyle/checkstyle-suppressions.xml`.
+[Complete source](https://github.com/erosb/json-sKema-examples/blob/master/src/main/java/com/github/erosb/jsonsKema/examples/PreRegisteredSchemas.java)
 
-IMPORTANT: Remember to set the `Scan Scope` to `All sources` since we apply checkstyle rules for production and test sources.
+```java
+// Creating a SchemaLoader config with a pre-registered schema by URI
+SchemaLoaderConfig config = createDefaultConfig(Map.of(
+            // When the loader sees this URI,
+            new URI("urn:uuid:d652a438-9897-4160-959c-bbdb690c3e0d"),
 
-[[duplicate-finder]]
-== Duplicate Finder
+            // then it will resolve it to this schema json
+            """
+            {
+                "$defs": {
+                    "ItemType": {
+                        "type": "integer",
+                        "minimum": 0
+                    }
+                }
+            }
+            """
+    ));
+// parsing the schema json, with a $ref to the above pre-configured URI
+JsonValue schemaJson = new JsonParser("""
+        {
+            "type": "array",
+            "items": {
+                "$ref": "urn:uuid:d652a438-9897-4160-959c-bbdb690c3e0d#/$defs/ItemType"
+            }
+        }
+        """).parse();
+// loading the schema json into a Schema object
+Schema schema = new SchemaLoader(schemaJson, config).load();
 
-Spring Cloud Build brings along the  `basepom:duplicate-finder-maven-plugin`, that enables flagging duplicate and conflicting classes and resources on the java classpath.
+// running the validation
+ValidationFailure result = Validator.forSchema(schema).validate(new JsonParser("[null]").parse());
+System.out.println(result.toJSON());
+```
 
-[[duplicate-finder-configuration]]
-=== Duplicate Finder configuration
+### Validating in Read or Write context
 
-Duplicate finder is *enabled by default* and will run in the `verify` phase of your Maven build, but it will only take effect in your project if you add the `duplicate-finder-maven-plugin` to the `build` section of the projecst's `pom.xml`.
+[Complete source](https://github.com/erosb/json-sKema-examples/blob/master/src/main/java/com/github/erosb/jsonsKema/examples/ReadWriteContextValidation.java)
 
-.pom.xml
-[source,xml]
-----
-<build>
-    <plugins>
-        <plugin>
-            <groupId>org.basepom.maven</groupId>
-            <artifactId>duplicate-finder-maven-plugin</artifactId>
-        </plugin>
-    </plugins>
-</build>
-----
+If you want to take advantage of the [`"readOnly"` and `"writeOnly"`](https://json-schema.org/draft/2020-12/draft-bhutton-json-schema-validation-00#rfc.section.9.4)
+keywords of json schema, you can tell the `Validator` instance  if the validation happens in read or write context:
 
-For other properties, we have set defaults as listed in the https://github.com/basepom/duplicate-finder-maven-plugin/wiki[plugin documentation].
+```java
+JsonValue schemaJson = new JsonParser("""
+{
+    "type": "object",
+    "properties": {
+        "id": {
+            "readOnly": true,
+            "type": "number"
+        },
+        "name": {
+            "type": "string"
+        },
+        "password": {
+            "type": "string",
+            "writeOnly": true
+        }
+    }
+}
+""").parse();
+// map the raw json to a reusable Schema instance
+Schema schema = new SchemaLoader(schemaJson).load();
 
-You can easily override them but setting the value of the selected property prefixed with `duplicate-finder-maven-plugin`. For example, set `duplicate-finder-maven-plugin.skip` to `true` in order to skip duplicates check in your build.
+// creating write-context validator, it will report validation failures
+// for read-only properties that are included in the instance
+var writeContextValidator = Validator.create(schema, ValidatorConfig.builder()
+        .readWriteContext(ReadWriteContext.WRITE)
+        .build()
+);
 
-If you need to add `ignoredClassPatterns` or `ignoredResourcePatterns` to your setup, make sure to add them in the plugin configuration section of your project:
+// creating the json document which will be validated (first in write context, then in read context)
+JsonValue instance = new JsonParser("""
+        {
+            "id": 1,
+            "name": "John Doe",
+            "password": "v3ry_s3cur3"
+        }
+        """).parse();
+var writeContextFailure = writeContextValidator.validate(instance);
 
-[source,xml]
-----
-<build>
-    <plugins>
-        <plugin>
-            <groupId>org.basepom.maven</groupId>
-            <artifactId>duplicate-finder-maven-plugin</artifactId>
-            <configuration>
-                <ignoredClassPatterns>
-                    <ignoredClassPattern>org.joda.time.base.BaseDateTime</ignoredClassPattern>
-                    <ignoredClassPattern>.*module-info</ignoredClassPattern>
-                </ignoredClassPatterns>
-                <ignoredResourcePatterns>
-                    <ignoredResourcePattern>changelog.txt</ignoredResourcePattern>
-                </ignoredResourcePatterns>
-            </configuration>
-        </plugin>
-    </plugins>
-</build>
+// prints failure because the read-only property "id" is present in write context
+System.out.println(writeContextFailure);
+
+// creating read-context validator, it will report validation failures
+// for write-only properties that are included in the instance
+var readContextValidator = Validator.create(schema, ValidatorConfig.builder()
+        .readWriteContext(ReadWriteContext.READ)
+        .build()
+);
+
+var readContextFailure = readContextValidator.validate(instance);
+
+// prints failure because the write-only property "password" is present in read context
+System.out.println(readContextFailure);
+```
+
+## Compatibility notes
+
+The library implements the JSON Schema draft 2020-12 core and validation specifications, with the following notes:
+ * `$dynamicAnchor` and `$dynamicRef` support is partially implemented
+
+### `"format"` support
+
+The library currently has built-in support for the following `"format"` values defined in the specification:
+
+<table>
+    <thead>
+        <tr>
+            <td>"format"</td>
+            <td>Supported?</td>
+            <td>Notes</td>
+        </tr>
+    </thead>
+<tbody>
+    <tr>
+        <td>date</td>
+        <td>Yes</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td>date-time</td>
+        <td>Yes</td>
+        <td>Non-UTC values with leap seconds not supported</td>
+    </tr>
+    <tr>
+        <td>time</td>
+        <td>Yes</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td>duration</td>
+        <td>Partially</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td>email</td>
+        <td>Yes</td>
+        <td>IPV6 domain parts not supported</td>
+    </tr>
+    <tr>
+        <td>uri</td>
+        <td>Yes</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td>ipv4</td>
+        <td>Yes</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td>ipv6</td>
+        <td>Yes</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td>uuid</td>
+        <td>Yes</td>
+        <td></td>
+    </tr>
+</tbody>
+</table>
+
+The following formats are NOT supported: hostname, idn-email, idn-hostname, iri, iri-reference, json-pointer, regex, relative-json-pointer, uri-reference, uri-template .
 
 
-----
+### Support for older JSON Schema drafts
+
+This project is the successor of [everit-org/json-schema](https://github.com/everit-org/json-schema). If you want to use draft-04, draft-06 or draft-07 versions of JSON Schema, then you can use the everit library.
+
+
+## Contribution guideline
+
+Local environment setup:
+
+_Prerequisite: JDK and Maven installed_
+
+```
+git clone https://github.com/erosb/json-sKema.git
+cd json-sKema
+git submodule init
+git submodule update
+```
+
+### Building the project:
+
+`mvn clean package`
+
+### Building the project and running the official test suite:
+
+Test annotated with `@Tag("acceptance")` require the test suite to be pulled using:
+
+`git submodule update --init --recursive`
+
+Then run the tests:
+
+`mvn clean verify`
+
+### Building the project without running the official test suite:
+`mvn clean package -Dgroups='!acceptance'`
 
