@@ -1,4 +1,4 @@
-# json-sKema
+# OpenAPI Proxy Spring Boot Starter
 
 ## Features
 
