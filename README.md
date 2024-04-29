@@ -8,12 +8,162 @@
 * Proxies can be generated from OpenAPI specifications
 * Proxy interceptors can be defined in order to modify HTTP Request and Response (Add/Remove Headers, Update Body)
 
+OpenAPI Proxy Spring Boot Starter is released under the non-restrictive Apache 2.0 license,
+and follows a very standard Github development process, using Github
+tracker for issues and merging pull requests into main. If you want
+to contribute even something trivial please do not hesitate, but
+follow the guidelines below.
+
+image::https://circleci.com/gh/spring-cloud/spring-cloud-config/tree/master.svg?style=svg["CircleCI", link="https://circleci.com/gh/spring-cloud/spring-cloud-config/tree/master"]
+image::https://codecov.io/gh/spring-cloud/spring-cloud-config/branch/master/graph/badge.svg["Codecov", link="https://codecov.io/gh/spring-cloud/spring-cloud-config/branch/master"]
+image::https://api.codacy.com/project/badge/Grade/f064024a072c477e97dca6ed5a70fccd?branch=master["Codacy code quality", link="https://www.codacy.com/app/Spring-Cloud/spring-cloud-config?branch=master&utm_source=github.com&utm_medium=referral&utm_content=spring-cloud/spring-cloud-config&utm_campaign=Badge_Grade"]
+
+OpenAPI Proxy Spring Boot Starter offers the following benefits:
+
+* HTTP resource-based API for external configuration (name-value pairs or equivalent YAML content)
+* Encrypt and decrypt property values (symmetric or asymmetric)
+* Embeddable easily in a Spring Boot application using `@EnableConfigServer`
+
+[[quick-start]]
+= Quick Start
+
+[[sample-application]]
+== Sample Application
+
+You can find a sample application https://github.com/spring-cloud/spring-cloud-config/tree/master/spring-cloud-config-sample[here].
+It is a Spring Boot application, so you can run it by using the usual mechanisms (for instance, `mvn spring-boot:run`).
+When it runs, it looks for the config server on `http://localhost:8888` (a configurable default), so you can run the server as well to see it all working together.
+
+The sample has a test case where the config server is also started in the same JVM (with a different port), and the test asserts that an
+environment property from the git configuration repo is present.
+To change the location of the config server, you can set `spring.cloud.config.uri` in `bootstrap.yml` (or in system properties and other places).
+
+The test case has a `main()` method that runs the server in the same way (watch the logs for its port), so you can run the whole system in one process and play with it (for example, you can run the `main()` method in your IDE).
+The `main()` method uses `target/config` for the working directory of the git repository, so you can make local changes there and see them reflected in the running app. The following example shows a session of tinkering with the test case:
+
+----
+$ curl localhost:8080/env/sample
+mytest
+$ vi target/config/mytest.properties
+.. change value of "sample", optionally commit
+$ curl -X POST localhost:8080/refresh
+["sample"]
+$ curl localhost:8080/env/sample
+sampleValue
+----
+
+The refresh endpoint reports that the "sample" property changed.
+
 [[building]]
 = Building
 
+:jdkversion: 17
+
+[[basic-compile-and-test]]
+== Basic Compile and Test
+
+To build the source you will need to install JDK {jdkversion}.
+
+Spring Cloud uses Maven for most build-related activities, and you
+should be able to get off the ground quite quickly by cloning the
+project you are interested in and typing
+
+----
+$ ./mvnw install
+----
+
+NOTE: You can also install Maven (>=3.3.3) yourself and run the `mvn` command
+in place of `./mvnw` in the examples below. If you do that you also
+might need to add `-P spring` if your local Maven settings do not
+contain repository declarations for spring pre-release artifacts.
+
+NOTE: Be aware that you might need to increase the amount of memory
+available to Maven by setting a `MAVEN_OPTS` environment variable with
+a value like `-Xmx512m -XX:MaxPermSize=128m`. We try to cover this in
+the `.mvn` configuration, so if you find you have to do it to make a
+build succeed, please raise a ticket to get the settings added to
+source control.
+
+The projects that require middleware (i.e. Redis) for testing generally
+require that a local instance of [Docker](https://www.docker.com/get-started) is installed and running.
+
+[[documentation]]
+== Documentation
+
+The spring-cloud-build module has a "docs" profile, and if you switch
+that on it will try to build asciidoc sources using https://docs.antora.org/antora/latest/[Antora] from
+`modules/ROOT/`.
+
+As part of that process it will look for a
+`docs/src/main/asciidoc/README.adoc` and process it by loading all the includes, but not
+parsing or rendering it, just copying it to `${main.basedir}`
+(defaults to `$\{basedir}`, i.e. the root of the project). If there are
+any changes in the README it will then show up after a Maven build as
+a modified file in the correct place. Just commit it and push the change.
+
+[[working-with-the-code]]
+== Working with the code
+If you don't have an IDE preference we would recommend that you use
+https://www.springsource.com/developer/sts[Spring Tools Suite] or
+https://eclipse.org[Eclipse] when working with the code. We use the
+https://eclipse.org/m2e/[m2eclipse] eclipse plugin for maven support. Other IDEs and tools
+should also work without issue as long as they use Maven 3.3.3 or better.
+
+[[activate-the-spring-maven-profile]]
+=== Activate the Spring Maven profile
+Spring Cloud projects require the 'spring' Maven profile to be activated to resolve
+the spring milestone and snapshot repositories. Use your preferred IDE to set this
+profile to be active, or you may experience build errors.
+
+[[importing-into-eclipse-with-m2eclipse]]
+=== Importing into eclipse with m2eclipse
+We recommend the https://eclipse.org/m2e/[m2eclipse] eclipse plugin when working with
+eclipse. If you don't already have m2eclipse installed it is available from the "eclipse
+marketplace".
+
+NOTE: Older versions of m2e do not support Maven 3.3, so once the
+projects are imported into Eclipse you will also need to tell
+m2eclipse to use the right profile for the projects.  If you
+see many different errors related to the POMs in the projects, check
+that you have an up to date installation.  If you can't upgrade m2e,
+add the "spring" profile to your `settings.xml`. Alternatively you can
+copy the repository settings from the "spring" profile of the parent
+pom into your `settings.xml`.
+
+[[importing-into-eclipse-without-m2eclipse]]
+=== Importing into eclipse without m2eclipse
+If you prefer not to use m2eclipse you can generate eclipse project metadata using the
+following command:
+
+[indent=0]
+----
+    $ ./mvnw eclipse:eclipse
+----
+
+The generated eclipse projects can be imported by selecting `import existing projects`
+from the `file` menu.
+
+
+[[jce]]
+== JCE
+
+If you get an exception due to "Illegal key size" and you are using Sun’s JDK, you need to install the Java Cryptography Extension (JCE) Unlimited Strength Jurisdiction Policy Files.
+See the following links for more information:
+
+https://www.oracle.com/technetwork/java/javase/downloads/jce-6-download-429243.html[Java 6 JCE]
+
+https://www.oracle.com/technetwork/java/javase/downloads/jce-7-download-432124.html[Java 7 JCE]
+
+https://www.oracle.com/technetwork/java/javase/downloads/jce8-download-2133166.html[Java 8 JCE]
+
+Extract the JCE files into the `JDK/jre/lib/security` folder for whichever version of JRE/JDK x64/x86 you use.
+
+[[contributing]]
+= Contributing
+
 :spring-cloud-build-branch: main
 
-Spring OpenAPI Proxy is released under the non-restrictive Apache 2.0 license,
+Spring Cloud is released under the non-restrictive Apache 2.0 license,
 and follows a very standard Github development process, using Github
 tracker for issues and merging pull requests into main. If you want
 to contribute even something trivial please do not hesitate, but
@@ -70,12 +220,12 @@ Spring Cloud Build comes with a set of checkstyle rules. You can find them in th
 .spring-cloud-build-tools/
 ----
 └── src
-    ├── checkstyle
-    │   └── checkstyle-suppressions.xml <3>
-    └── main
-        └── resources
-            ├── checkstyle-header.txt <2>
-            └── checkstyle.xml <1>
+    ├── checkstyle
+    │   └── checkstyle-suppressions.xml <3>
+    └── main
+        └── resources
+            ├── checkstyle-header.txt <2>
+            └── checkstyle.xml <1>
 ----
 <1> Default Checkstyle rules
 <2> File header setup
@@ -130,11 +280,11 @@ If you need to suppress some rules (e.g. line length needs to be longer), then i
 ----
 <?xml version="1.0"?>
 <!DOCTYPE suppressions PUBLIC
-		"-//Puppy Crawl//DTD Suppressions 1.1//EN"
-		"https://www.puppycrawl.com/dtds/suppressions_1_1.dtd">
+        "-//Puppy Crawl//DTD Suppressions 1.1//EN"
+        "https://www.puppycrawl.com/dtds/suppressions_1_1.dtd">
 <suppressions>
-	<suppress files=".*ConfigServerApplication\.java" checks="HideUtilityClassConstructor"/>
-	<suppress files=".*ConfigClientWatch\.java" checks="LineLengthCheck"/>
+    <suppress files=".*ConfigServerApplication\.java" checks="HideUtilityClassConstructor"/>
+    <suppress files=".*ConfigClientWatch\.java" checks="LineLengthCheck"/>
 </suppressions>
 ----
 
@@ -157,15 +307,15 @@ The following files can be found in the https://github.com/spring-cloud/spring-c
 .spring-cloud-build-tools/
 ----
 └── src
-    ├── checkstyle
-    │   └── checkstyle-suppressions.xml <3>
-    └── main
-        └── resources
-            ├── checkstyle-header.txt <2>
-            ├── checkstyle.xml <1>
-            └── intellij
-                ├── Intellij_Project_Defaults.xml <4>
-                └── Intellij_Spring_Boot_Java_Conventions.xml <5>
+    ├── checkstyle
+    │   └── checkstyle-suppressions.xml <3>
+    └── main
+        └── resources
+            ├── checkstyle-header.txt <2>
+            ├── checkstyle.xml <1>
+            └── intellij
+                ├── Intellij_Project_Defaults.xml <4>
+                └── Intellij_Spring_Boot_Java_Conventions.xml <5>
 ----
 <1> Default Checkstyle rules
 <2> File header setup
@@ -175,13 +325,13 @@ The following files can be found in the https://github.com/spring-cloud/spring-c
 
 .Code style
 
-image::intellij-code-style.png[Code style]
+image::https://raw.githubusercontent.com/spring-cloud/spring-cloud-build/main/docs/modules/ROOT/assets/images/intellij-code-style.png[Code style]
 
 Go to `File` -> `Settings` -> `Editor` -> `Code style`. There click on the icon next to the `Scheme` section. There, click on the `Import Scheme` value and pick the `Intellij IDEA code style XML` option. Import the `spring-cloud-build-tools/src/main/resources/intellij/Intellij_Spring_Boot_Java_Conventions.xml` file.
 
 .Inspection profiles
 
-image::intellij-inspections.png[Code style]
+image::https://raw.githubusercontent.com/spring-cloud/spring-cloud-build/main/docs/modules/ROOT/assets/images/intellij-inspections.png[Code style]
 
 Go to `File` -> `Settings` -> `Editor` -> `Inspections`. There click on the icon next to the `Profile` section. There, click on the `Import Profile` and import the `spring-cloud-build-tools/src/main/resources/intellij/Intellij_Project_Defaults.xml` file.
 
@@ -189,7 +339,7 @@ Go to `File` -> `Settings` -> `Editor` -> `Inspections`. There click on the icon
 
 To have Intellij work with Checkstyle, you have to install the `Checkstyle` plugin. It's advisable to also install the `Assertions2Assertj` to automatically convert the JUnit assertions
 
-image::intellij-checkstyle.png[Checkstyle]
+image::https://raw.githubusercontent.com/spring-cloud/spring-cloud-build/main/docs/modules/ROOT/assets/images/intellij-checkstyle.png[Checkstyle]
 
 Go to `File` -> `Settings` -> `Other settings` -> `Checkstyle`. There click on the `+` icon in the `Configuration file` section. There, you'll have to define where the checkstyle rules should be picked from. In the image above, we've picked the rules from the cloned Spring Cloud Build repository. However, you can point to the Spring Cloud Build's GitHub repository (e.g. for the `checkstyle.xml` : `https://raw.githubusercontent.com/spring-cloud/spring-cloud-build/main/spring-cloud-build-tools/src/main/resources/checkstyle.xml`). We need to provide the following variables:
 
@@ -251,8 +401,3 @@ If you need to add `ignoredClassPatterns` or `ignoredResourcePatterns` to your s
 
 ----
 
-
-[[contributing]]
-= Contributing
-
-Unresolved directive in <stdin> - include::https://raw.githubusercontent.com/spring-cloud/spring-cloud-build/main/docs/src/main/asciidoc/contributing.adoc[]
