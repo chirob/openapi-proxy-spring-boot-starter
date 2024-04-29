@@ -1,5 +1,6 @@
-[[features]]
-= Features
+# json-sKema
+
+## Features
 
 * Java 17
 * Spring Framework 6
@@ -14,17 +15,11 @@ tracker for issues and merging pull requests into main. If you want
 to contribute even something trivial please do not hesitate, but
 follow the guidelines below.
 
-image::https://circleci.com/gh/spring-cloud/spring-cloud-config/tree/master.svg?style=svg["CircleCI", link="https://circleci.com/gh/spring-cloud/spring-cloud-config/tree/master"]
-image::https://codecov.io/gh/spring-cloud/spring-cloud-config/branch/master/graph/badge.svg["Codecov", link="https://codecov.io/gh/spring-cloud/spring-cloud-config/branch/master"]
-image::https://api.codacy.com/project/badge/Grade/f064024a072c477e97dca6ed5a70fccd?branch=master["Codacy code quality", link="https://www.codacy.com/app/Spring-Cloud/spring-cloud-config?branch=master&utm_source=github.com&utm_medium=referral&utm_content=spring-cloud/spring-cloud-config&utm_campaign=Badge_Grade"]
-
 OpenAPI Proxy Spring Boot Starter offers the following benefits:
 
 * HTTP resource-based API for external configuration (name-value pairs or equivalent YAML content)
 * Encrypt and decrypt property values (symmetric or asymmetric)
 * Embeddable easily in a Spring Boot application using `@EnableConfigServer`
-
-# json-sKema
 
 _json-sKema is a [Json Schema](https://json-schema.org/) validator library for the Java Virtual Machine. It implements the [draft 2020-12](https://json-schema.org/draft/2020-12/json-schema-validation.html) specification._
 
