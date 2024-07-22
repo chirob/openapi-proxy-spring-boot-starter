@@ -12,8 +12,9 @@
     <version>1.0.0</version>
 
     <properties>
-        <io.swagger.core.v3.swagger-parser.version>2.1.16</io.swagger.core.v3.swagger-parser.version>
-        <org.springdoc.springdoc-openapi-starter-webmvc-ui.version>2.2.0</org.springdoc.springdoc-openapi-starter-webmvc-ui.version>
+        <io.swagger.core.v3.swagger-parser.version>2.1.22</io.swagger.core.v3.swagger-parser.version>
+        <javax.xml.bind-jaxb-api.version>2.3.1</javax.xml.bind-jaxb-api.version>
+        <org.springdoc.springdoc-openapi-starter-webmvc-ui.version>2.6.0</org.springdoc.springdoc-openapi-starter-webmvc-ui.version>
     </properties>
 
     <dependencies>
@@ -30,6 +31,11 @@
             <artifactId>swagger-parser</artifactId>
             <version>${io.swagger.core.v3.swagger-parser.version}</version>
         </dependency>
+        <dependency>
+            <groupId>javax.xml.bind</groupId>
+            <artifactId>jaxb-api</artifactId>
+            <version>${javax.xml.bind-jaxb-api.version}</version>
+        </dependency>        
         
         <dependency>
             <groupId>org.projectlombok</groupId>
