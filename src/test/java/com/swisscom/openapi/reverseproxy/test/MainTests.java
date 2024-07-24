@@ -16,22 +16,33 @@
 
 package com.swisscom.openapi.reverseproxy.test;
 
-import lombok.extern.slf4j.Slf4j;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import java.util.List;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.web.client.RestTemplate;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+
+import lombok.extern.slf4j.Slf4j;
+
 @Slf4j
 @SpringBootTest(classes = TestApplication.class, webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
 public class MainTests {
 
-    RestTemplate restTemplate = new RestTemplate();
+	RestTemplate restTemplate = new RestTemplate();
 
-    @Test
-    public void testGetCats() {
-        Object response = this.restTemplate.getForObject("http://localhost:8080/test-proxy/cats", Object.class);
-        log.info("{}", response);
-    }
+	@SuppressWarnings("unchecked")
+	@Test
+	void testGetCats() throws JsonProcessingException {
+		List<Object> response = this.restTemplate.getForObject("http://localhost:8080/cats", List.class);
+		log.info("response: {}", response);
+		List<Object> proxResponse = this.restTemplate.getForObject("http://localhost:8080/test-proxy/cats", List.class);
+		log.info("proxResponse: {}", proxResponse);
+		assertEquals(proxResponse.size(), response.size() - 1);
+
+	}
 
 }
