@@ -42,7 +42,6 @@ public class MainTests {
 		List<Object> proxResponse = this.restTemplate.getForObject("http://localhost:8080/test-proxy/cats", List.class);
 		log.info("proxResponse: {}", proxResponse);
 		assertEquals(proxResponse.size(), response.size() - 1);
-
 	}
 
 }
