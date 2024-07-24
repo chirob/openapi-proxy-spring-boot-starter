@@ -12,8 +12,12 @@
     <version>1.0.0</version>
 
     <properties>
+		<maven.compiler.release>17</maven.compiler.release>	
+		
+		<org.apache.maven.plugins.maven-gpg-plugin.version>3.2.4</org.apache.maven.plugins.maven-gpg-plugin.version>
+		
+		<javax.xml.bind-jaxb-api.version>2.3.1</javax.xml.bind-jaxb-api.version>
         <io.swagger.core.v3.swagger-parser.version>2.1.22</io.swagger.core.v3.swagger-parser.version>
-        <javax.xml.bind-jaxb-api.version>2.3.1</javax.xml.bind-jaxb-api.version>
         <org.springdoc.springdoc-openapi-starter-webmvc-ui.version>2.6.0</org.springdoc.springdoc-openapi-starter-webmvc-ui.version>
     </properties>
 
@@ -54,20 +58,13 @@
         <dependency>
             <groupId>org.springdoc</groupId>
             <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
-            <version>
-                ${org.springdoc.springdoc-openapi-starter-webmvc-ui.version}</version>
+            <version>${org.springdoc.springdoc-openapi-starter-webmvc-ui.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
 
     <build>
         <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-javadoc-plugin</artifactId>
-                <configuration>
-                </configuration>
-            </plugin>
             <plugin>
                 <groupId>io.spring.javaformat</groupId>
                 <artifactId>spring-javaformat-maven-plugin</artifactId>
@@ -102,8 +99,6 @@
                 <executions>
                     <execution>
                         <id>checkstyle-validation</id>
-                        <phase>validate</phase>
-                        <!--<inherited>true</inherited>-->
                         <configuration>
                             <configLocation>${project.basedir}/src/main/resources/checkstyle/checkstyle.xml</configLocation>
                             <includeTestSourceDirectory>true</includeTestSourceDirectory>
@@ -116,5 +111,53 @@
             </plugin>
         </plugins>
     </build>
+
+    <profiles>
+        <profile>
+            <id>release</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-source-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>attach-sources</id>
+                                <goals>
+                                    <goal>jar-no-fork</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-javadoc-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>attach-javadocs</id>
+                                <goals>
+                                    <goal>jar</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-gpg-plugin</artifactId>
+                        <version>${org.apache.maven.plugins.maven-gpg-plugin.version}</version>
+                        <executions>
+                            <execution>
+                                <id>sign-artifacts</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>sign</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 
 </project>
