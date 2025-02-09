@@ -30,28 +30,28 @@ import org.springframework.stereotype.Component;
 @Component
 public class SpelExpressionEvaluator {
 
-    private final StandardEvaluationContext context = new StandardEvaluationContext();
+	private final StandardEvaluationContext context = new StandardEvaluationContext();
 
-    private final ExpressionParser parser = new SpelExpressionParser();
+	private final ExpressionParser parser = new SpelExpressionParser();
 
-    public SpelExpressionEvaluator(BeanFactory beanFactory) {
-        this.context.setBeanResolver(new BeanFactoryResolver(beanFactory));
-    }
+	public SpelExpressionEvaluator(BeanFactory beanFactory) {
+		this.context.setBeanResolver(new BeanFactoryResolver(beanFactory));
+	}
 
-    public String evaluate(String expression) {
-        return Optional.ofNullable(expression)
-            .map((expr) -> parse("#{".concat(expr).concat("}")))
-            .filter((parsed) -> !"#{".concat(expression).concat("}").equals(parsed))
-            .orElse(Optional.ofNullable(expression).map(this::parse).orElse(null));
-    }
+	public String evaluate(String expression) {
+		return Optional.ofNullable(expression)
+			.map((expr) -> parse("#{".concat(expr).concat("}")))
+			.filter((parsed) -> !"#{".concat(expression).concat("}").equals(parsed))
+			.orElse(Optional.ofNullable(expression).map(this::parse).orElse(null));
+	}
 
-    protected String parse(String expression) {
-        try {
-            return this.parser.parseExpression(expression).getValue(this.context, String.class);
-        }
-        catch (Exception ex) {
-            return expression;
-        }
-    }
+	protected String parse(String expression) {
+		try {
+			return this.parser.parseExpression(expression).getValue(this.context, String.class);
+		}
+		catch (Exception ex) {
+			return expression;
+		}
+	}
 
 }

@@ -33,37 +33,37 @@ import lombok.RequiredArgsConstructor;
 @Component
 public class OpenApiRegistry {
 
-    private List<Listener> listeners = new ArrayList<>();
+	private List<Listener> listeners = new ArrayList<>();
 
-    private Map<String, List<OpenAPI>> registry = new HashMap<>();
+	private Map<String, List<OpenAPI>> registry = new HashMap<>();
 
-    public OpenAPI get(String prefix) {
-        return Optional.ofNullable(prefix)
-            .map((pfx) -> pfx.trim())
-            .map(this.registry::get)
-            .filter((openApis) -> openApis.size() == 1)
-            .map((openApis) -> openApis.get(0))
-            .orElseThrow(() -> new IllegalArgumentException("No OpenAPI instance found for prefix " + prefix));
-    }
+	public OpenAPI get(String prefix) {
+		return Optional.ofNullable(prefix)
+			.map((pfx) -> pfx.trim())
+			.map(this.registry::get)
+			.filter((openApis) -> openApis.size() == 1)
+			.map((openApis) -> openApis.get(0))
+			.orElseThrow(() -> new IllegalArgumentException("No OpenAPI instance found for prefix " + prefix));
+	}
 
-    public List<OpenAPI> getUnprefixed() {
-        return this.registry.get("");
-    }
+	public List<OpenAPI> getUnprefixed() {
+		return this.registry.get("");
+	}
 
-    public void addListener(Listener listener) {
-        this.listeners.add(listener);
-    }
+	public void addListener(Listener listener) {
+		this.listeners.add(listener);
+	}
 
-    protected void add(String prefix, OpenAPI openApi) {
-        var key = Optional.ofNullable(prefix).map((pfx) -> pfx.trim()).orElse("");
-        this.registry.computeIfAbsent((key), (k) -> new ArrayList<OpenAPI>()).add(openApi);
-        this.listeners.forEach((listener) -> listener.onOpenApiRegistration(prefix, openApi));
-    }
+	protected void add(String prefix, OpenAPI openApi) {
+		var key = Optional.ofNullable(prefix).map((pfx) -> pfx.trim()).orElse("");
+		this.registry.computeIfAbsent((key), (k) -> new ArrayList<OpenAPI>()).add(openApi);
+		this.listeners.forEach((listener) -> listener.onOpenApiRegistration(prefix, openApi));
+	}
 
-    public interface Listener {
+	public interface Listener {
 
-        void onOpenApiRegistration(String prefix, OpenAPI openApi);
+		void onOpenApiRegistration(String prefix, OpenAPI openApi);
 
-    }
+	}
 
 }

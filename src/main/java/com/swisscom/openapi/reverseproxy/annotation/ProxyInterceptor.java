@@ -29,8 +29,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 @Documented
 public @interface ProxyInterceptor {
 
-    String[] path() default {};
+	String[] path() default {};
 
-    RequestMethod[] method() default {};
+	RequestMethod[] method() default {};
 
 }

@@ -21,16 +21,16 @@ import jakarta.servlet.http.HttpServletRequestWrapper;
 
 public class ProxyHttpServletRequest extends HttpServletRequestWrapper {
 
-    private String requestUri;
+	private String requestUri;
 
-    public ProxyHttpServletRequest(HttpServletRequest request, String prefix) {
-        super(request);
-        this.requestUri = super.getRequestURI().substring(prefix.isBlank() ? 0 : prefix.length() + 1);
-    }
+	public ProxyHttpServletRequest(HttpServletRequest request, String prefix) {
+		super(request);
+		this.requestUri = super.getRequestURI().substring(prefix.isBlank() ? 0 : prefix.length() + 1);
+	}
 
-    @Override
-    public String getRequestURI() {
-        return this.requestUri;
-    }
+	@Override
+	public String getRequestURI() {
+		return this.requestUri;
+	}
 
 }

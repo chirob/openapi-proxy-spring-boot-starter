@@ -23,8 +23,8 @@ import lombok.ToString;
 @Data
 public class Status {
 
-    private boolean verified;
+	private boolean verified;
 
-    private int sentCount;
+	private int sentCount;
 
 }

@@ -41,38 +41,38 @@ import com.swisscom.openapi.reverseproxy.test.model.Cat;
 @SpringBootApplication(exclude = SecurityAutoConfiguration.class)
 public class TestApplication {
 
-    public static void main(String[] args) {
-        SpringApplication.run(TestApplication.class, args);
-    }
+	public static void main(String[] args) {
+		SpringApplication.run(TestApplication.class, args);
+	}
 
-    @Proxy(specification = "classpath:/cats.openapi.json", options = @Options(prefix = "test-proxy"))
-    @Bean
-    public Object catstoreProxy() {
-        return new Object() {
-            @ProxyInterceptor(path = "/test-proxy/cats", method = RequestMethod.GET)
-            public List<Cat> getCats(ProxyClient proxyClient) {
-                var cats = proxyClient.getResponseBody(new ParameterizedTypeReference<List<Cat>>() {
-                });
-                cats.removeIf((cat) -> cat.getCreatedAt().compareTo(thresholdDate()) < 0);
-                return cats;
-            }
+	@Proxy(specification = "classpath:/cats.openapi.json", options = @Options(prefix = "test-proxy"))
+	@Bean
+	public Object catstoreProxy() {
+		return new Object() {
+			@ProxyInterceptor(path = "/test-proxy/cats", method = RequestMethod.GET)
+			public List<Cat> getCats(ProxyClient proxyClient) {
+				var cats = proxyClient.getResponseBody(new ParameterizedTypeReference<List<Cat>>() {
+				});
+				cats.removeIf((cat) -> cat.getCreatedAt().compareTo(thresholdDate()) < 0);
+				return cats;
+			}
 
-            @ProxyInterceptor(path = "/test-proxy/cats", method = RequestMethod.POST)
-            public void postCats(ProxyClient proxyClient) {
-                Consumer<List<Cat>> transformer = (cats) -> cats.forEach((cat) -> cat.setUpdatedAt(new Date()));
-                proxyClient.transformRequestEntityBody(transformer, new TypeReference<List<Cat>>() {
-                }).exchange();
-            }
+			@ProxyInterceptor(path = "/test-proxy/cats", method = RequestMethod.POST)
+			public void postCats(ProxyClient proxyClient) {
+				Consumer<List<Cat>> transformer = (cats) -> cats.forEach((cat) -> cat.setUpdatedAt(new Date()));
+				proxyClient.transformRequestEntityBody(transformer, new TypeReference<List<Cat>>() {
+				}).exchange();
+			}
 
-            private Date thresholdDate() {
-                try {
-                    return new SimpleDateFormat("dd-MM-yyyy").parse("01-02-2018");
-                }
-                catch (ParseException ex) {
-                    throw new IllegalArgumentException(ex);
-                }
-            }
-        };
-    }
+			private Date thresholdDate() {
+				try {
+					return new SimpleDateFormat("dd-MM-yyyy").parse("01-02-2018");
+				}
+				catch (ParseException ex) {
+					throw new IllegalArgumentException(ex);
+				}
+			}
+		};
+	}
 
 }

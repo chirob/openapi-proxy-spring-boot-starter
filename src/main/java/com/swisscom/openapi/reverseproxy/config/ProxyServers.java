@@ -24,12 +24,12 @@ import io.swagger.v3.oas.models.servers.Server;
 @SuppressWarnings("serial")
 public class ProxyServers extends ArrayList<Server> {
 
-    public ProxyServers(List<String> urls) {
-        for (String url : urls) {
-            var server = new Server();
-            add(server);
-            server.setUrl(url);
-        }
-    }
+	public ProxyServers(List<String> urls) {
+		for (String url : urls) {
+			var server = new Server();
+			add(server);
+			server.setUrl(url);
+		}
+	}
 
 }

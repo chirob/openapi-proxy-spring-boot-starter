@@ -39,20 +39,20 @@ import java.lang.annotation.Target;
 @Documented
 public @interface Proxy {
 
-    @interface Options {
+	@interface Options {
 
-        String prefix() default "";
+		String prefix() default "";
 
-        String[] ignoredRequestHeaders() default {};
+		String[] ignoredRequestHeaders() default {};
 
-        String[] ignoredResponseHeaders() default {};
+		String[] ignoredResponseHeaders() default {};
 
-    }
+	}
 
-    Options options() default @Options;
+	Options options() default @Options;
 
-    String specification() default "";
+	String specification() default "";
 
-    String target() default "";
+	String target() default "";
 
 }

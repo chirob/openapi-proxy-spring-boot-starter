@@ -26,56 +26,56 @@ import org.springframework.core.io.AbstractResource;
 
 public class ProxyResource extends AbstractResource {
 
-    private InputStream inputStream;
+	private InputStream inputStream;
 
-    public ProxyResource(InputStream inputStream) {
-        this.inputStream = new CachingInputStream(inputStream);
-    }
+	public ProxyResource(InputStream inputStream, boolean cache) {
+		this.inputStream = cache ? new CachingInputStream(inputStream) : inputStream;
+	}
 
-    @Override
-    public String getDescription() {
-        return "InputStream reverse-proxy resource";
-    }
+	@Override
+	public String getDescription() {
+		return "InputStream reverse-proxy resource";
+	}
 
-    @Override
-    public InputStream getInputStream() {
-        return this.inputStream;
-    }
+	@Override
+	public InputStream getInputStream() {
+		return this.inputStream;
+	}
 
-    private static final class CachingInputStream extends FilterInputStream {
+	private static final class CachingInputStream extends FilterInputStream {
 
-        private ByteArrayOutputStream buf = new ByteArrayOutputStream();
+		private ByteArrayOutputStream buf = new ByteArrayOutputStream();
 
-        @Override
-        public int read() throws IOException {
-            var bites = new byte[1];
-            var rv = read(bites, 0, 1);
-            return (rv == -1) ? rv : bites[0];
-        }
+		@Override
+		public int read() throws IOException {
+			var bites = new byte[1];
+			var rv = read(bites, 0, 1);
+			return (rv == -1) ? rv : bites[0];
+		}
 
-        @Override
-        public int read(byte[] b) throws IOException {
-            return read(b, 0, b.length);
-        }
+		@Override
+		public int read(byte[] b) throws IOException {
+			return read(b, 0, b.length);
+		}
 
-        @Override
-        public int read(byte[] b, int off, int len) throws IOException {
-            var rv = in.read(b, off, len);
-            if (!(in instanceof ByteArrayInputStream)) {
-                if (rv == -1) {
-                    in = new ByteArrayInputStream(this.buf.toByteArray());
-                }
-                else {
-                    this.buf.write(b, off, rv);
-                }
-            }
-            return rv;
-        }
+		@Override
+		public int read(byte[] b, int off, int len) throws IOException {
+			var rv = in.read(b, off, len);
+			if (!(in instanceof ByteArrayInputStream)) {
+				if (rv == -1) {
+					in = new ByteArrayInputStream(this.buf.toByteArray());
+				}
+				else {
+					this.buf.write(b, off, rv);
+				}
+			}
+			return rv;
+		}
 
-        private CachingInputStream(InputStream in) {
-            super(in);
-        }
+		private CachingInputStream(InputStream in) {
+			super(in);
+		}
 
-    }
+	}
 
 }

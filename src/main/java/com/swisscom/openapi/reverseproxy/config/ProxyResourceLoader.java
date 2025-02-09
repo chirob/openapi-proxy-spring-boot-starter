@@ -33,37 +33,37 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 public class ProxyResourceLoader implements ResourceLoader {
 
-    private final ProxyOptions proxyOptions;
+	private final ProxyOptions proxyOptions;
 
-    private final ResourceLoader resourceLoader;
+	private final ResourceLoader resourceLoader;
 
-    private final RestOperationsProvider restOperationsProvider;
+	private final RestOperationsProvider restOperationsProvider;
 
-    @Override
-    public Resource getResource(String location) {
-        return Optional.ofNullable(URI.create(location))
-            .filter((uri) -> List.of("http", "https").contains(Optional.ofNullable(uri.getScheme()).orElse("")))
-            .map((uri) -> Optional.ofNullable(getRestResource(uri.getScheme().concat("://").concat(uri.getAuthority()),
-                    uri.getPath()
-                        .concat(Optional.ofNullable(uri.getQuery()).map((query) -> "?".concat(query)).orElse("")))))
-            .orElseGet(() -> Optional.ofNullable(getRestResource(this.proxyOptions.getTarget(), location)))
-            .orElseGet(() -> Optional.ofNullable(this.resourceLoader.getResource(location))
-                .filter((resource) -> resource.exists())
-                .orElseGet(() -> new ByteArrayResource(location.getBytes(StandardCharsets.UTF_8))));
-    }
+	@Override
+	public Resource getResource(String location) {
+		return Optional.ofNullable(URI.create(location))
+			.filter((uri) -> List.of("http", "https").contains(Optional.ofNullable(uri.getScheme()).orElse("")))
+			.map((uri) -> Optional.ofNullable(getRestResource(uri.getScheme().concat("://").concat(uri.getAuthority()),
+					uri.getPath()
+						.concat(Optional.ofNullable(uri.getQuery()).map((query) -> "?".concat(query)).orElse("")))))
+			.orElseGet(() -> Optional.ofNullable(getRestResource(this.proxyOptions.getTarget(), location)))
+			.orElseGet(() -> Optional.ofNullable(this.resourceLoader.getResource(location))
+				.filter((resource) -> resource.exists())
+				.orElseGet(() -> new ByteArrayResource(location.getBytes(StandardCharsets.UTF_8))));
+	}
 
-    @Override
-    public ClassLoader getClassLoader() {
-        return Thread.currentThread().getContextClassLoader();
-    }
+	@Override
+	public ClassLoader getClassLoader() {
+		return Thread.currentThread().getContextClassLoader();
+	}
 
-    protected Resource getRestResource(String baseUrl, String path) {
-        try {
-            return this.restOperationsProvider.getRestOperations(baseUrl).getForObject(path, Resource.class);
-        }
-        catch (Exception ex) {
-            return null;
-        }
-    }
+	protected Resource getRestResource(String baseUrl, String path) {
+		try {
+			return this.restOperationsProvider.getRestOperations(baseUrl).getForObject(path, Resource.class);
+		}
+		catch (Exception ex) {
+			return null;
+		}
+	}
 
 }

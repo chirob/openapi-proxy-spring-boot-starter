@@ -30,11 +30,11 @@ import lombok.RequiredArgsConstructor;
 @Component
 public class ProxyRestOperationProvider implements RestOperationsProvider {
 
-    private final Optional<RestTemplateBuilder> restTemplateBuilder;
+	private final Optional<RestTemplateBuilder> restTemplateBuilder;
 
-    @Override
-    public RestOperations getRestOperations(String target) {
-        return this.restTemplateBuilder.orElseGet(() -> new RestTemplateBuilder()).rootUri(target).build();
-    }
+	@Override
+	public RestOperations getRestOperations(String target) {
+		return this.restTemplateBuilder.orElseGet(() -> new RestTemplateBuilder()).rootUri(target).build();
+	}
 
 }

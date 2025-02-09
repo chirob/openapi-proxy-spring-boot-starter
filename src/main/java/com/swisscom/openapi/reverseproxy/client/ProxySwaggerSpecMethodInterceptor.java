@@ -27,6 +27,7 @@ import lombok.RequiredArgsConstructor;
 public class ProxySwaggerSpecMethodInterceptor extends ProxyMethodInterceptor<ResponseEntity<String>> {
 
 	private final OpenAPI openApi;
+
 	private final boolean yaml;
 
 	@Override

@@ -20,15 +20,15 @@ import java.lang.reflect.Method;
 
 public abstract class ProxyMethodInterceptor<T> {
 
-    public abstract T invoke();
+	public abstract T invoke();
 
-    public Method getInvocationMethod() {
-        try {
-            return getClass().getDeclaredMethod("invoke");
-        }
-        catch (NoSuchMethodException | SecurityException ex) {
-            throw new IllegalStateException(ex);
-        }
-    }
+	public Method getInvocationMethod() {
+		try {
+			return getClass().getDeclaredMethod("invoke");
+		}
+		catch (NoSuchMethodException | SecurityException ex) {
+			throw new IllegalStateException(ex);
+		}
+	}
 
 }

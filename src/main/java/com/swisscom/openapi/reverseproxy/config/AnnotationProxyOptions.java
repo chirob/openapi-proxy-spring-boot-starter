@@ -26,35 +26,35 @@ import lombok.Getter;
 
 public class AnnotationProxyOptions extends SpelEvaluatedProxyOptions {
 
-    private final Proxy annotation;
+	private final Proxy annotation;
 
-    @Getter
-    private final String beanName;
+	@Getter
+	private final String beanName;
 
-    protected AnnotationProxyOptions(SpelExpressionEvaluator evaluator, Proxy annotation, String beanName) {
-        super(evaluator);
-        this.annotation = annotation;
-        this.beanName = beanName;
-    }
+	protected AnnotationProxyOptions(SpelExpressionEvaluator evaluator, Proxy annotation, String beanName) {
+		super(evaluator);
+		this.annotation = annotation;
+		this.beanName = beanName;
+	}
 
-    protected String specification() {
-        return this.annotation.specification();
-    }
+	protected String specification() {
+		return this.annotation.specification();
+	}
 
-    protected String target() {
-        return this.annotation.target();
-    }
+	protected String target() {
+		return this.annotation.target();
+	}
 
-    protected String prefix() {
-        return this.annotation.options().prefix();
-    }
+	protected String prefix() {
+		return this.annotation.options().prefix();
+	}
 
-    protected List<String> ignoredRequestHeaders() {
-        return Arrays.stream(this.annotation.options().ignoredRequestHeaders()).toList();
-    }
+	protected List<String> ignoredRequestHeaders() {
+		return Arrays.stream(this.annotation.options().ignoredRequestHeaders()).toList();
+	}
 
-    protected List<String> ignoredResponseHeaders() {
-        return Arrays.stream(this.annotation.options().ignoredResponseHeaders()).toList();
-    }
+	protected List<String> ignoredResponseHeaders() {
+		return Arrays.stream(this.annotation.options().ignoredResponseHeaders()).toList();
+	}
 
 }

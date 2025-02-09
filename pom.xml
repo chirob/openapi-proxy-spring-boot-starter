@@ -5,7 +5,8 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.1.4</version>
+        <version>3.4.2</version>
+        <relativePath/>
     </parent>
     <groupId>com.swisscom.openapi</groupId>
     <artifactId>openapi-proxy-spring-boot-starter</artifactId>
@@ -14,7 +15,7 @@
     <properties>
 		<maven.compiler.release>17</maven.compiler.release>	
 		
-		<org.apache.maven.plugins.maven-gpg-plugin.version>3.2.4</org.apache.maven.plugins.maven-gpg-plugin.version>
+		<org.apache.maven.plugins.maven-gpg-plugin.version>3.2.7</org.apache.maven.plugins.maven-gpg-plugin.version>
 		
 		<javax.xml.bind-jaxb-api.version>2.3.1</javax.xml.bind-jaxb-api.version>
         <io.swagger.core.v3.swagger-parser.version>2.1.22</io.swagger.core.v3.swagger-parser.version>

@@ -20,14 +20,14 @@ import java.util.List;
 
 public interface ProxyOptions {
 
-    String getSpecification();
+	String getSpecification();
 
-    String getPrefix();
+	String getPrefix();
 
-    String getTarget();
+	String getTarget();
 
-    List<String> getIgnoredRequestHeaders();
+	List<String> getIgnoredRequestHeaders();
 
-    List<String> getIgnoredResponseHeaders();
+	List<String> getIgnoredResponseHeaders();
 
 }

@@ -32,23 +32,23 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class RequestMappingRegistrationHandler {
 
-    private static final BuilderConfiguration REQUEST_MAPPING_BUILDER_CONFIGURATION = new BuilderConfiguration() {
-        {
-            setPatternParser(new PathPatternParser());
-        }
-    };
+	private static final BuilderConfiguration REQUEST_MAPPING_BUILDER_CONFIGURATION = new BuilderConfiguration() {
+		{
+			setPatternParser(new PathPatternParser());
+		}
+	};
 
-    private final Supplier<RequestMappingHandlerMapping> proxyRequestMappingHandlerMappingSupplier;
+	private final Supplier<RequestMappingHandlerMapping> proxyRequestMappingHandlerMappingSupplier;
 
-    public void registerMapping(Builder requestMappingInfoBuilder, ProxyMethodInterceptor<?> methodInterceptor) {
-        try {
-            this.proxyRequestMappingHandlerMappingSupplier.get()
-                .registerMapping(requestMappingInfoBuilder.options(REQUEST_MAPPING_BUILDER_CONFIGURATION).build(),
-                        methodInterceptor, methodInterceptor.getInvocationMethod());
-        }
-        catch (BeansException | SecurityException ex) {
-            throw new FatalBeanException(ex.getMessage(), ex);
-        }
-    }
+	public void registerMapping(Builder requestMappingInfoBuilder, ProxyMethodInterceptor<?> methodInterceptor) {
+		try {
+			this.proxyRequestMappingHandlerMappingSupplier.get()
+				.registerMapping(requestMappingInfoBuilder.options(REQUEST_MAPPING_BUILDER_CONFIGURATION).build(),
+						methodInterceptor, methodInterceptor.getInvocationMethod());
+		}
+		catch (BeansException | SecurityException ex) {
+			throw new FatalBeanException(ex.getMessage(), ex);
+		}
+	}
 
 }

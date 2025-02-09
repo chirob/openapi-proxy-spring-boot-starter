@@ -29,6 +29,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.context.support.GenericApplicationContext;
 import org.springframework.stereotype.Component;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -43,174 +45,164 @@ import com.swisscom.openapi.reverseproxy.util.RequestMappingRegistrationHandler;
 import com.swisscom.openapi.reverseproxy.util.SpelExpressionEvaluator;
 
 import io.swagger.v3.oas.models.OpenAPI;
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
 @Component
 public class ProxyOptionsProcessor implements BeanPostProcessor {
 
-    protected GenericApplicationContext applicationContext;
+	protected GenericApplicationContext applicationContext;
 
-    private List<String> proxyAnnotatedBeanNames;
+	private List<String> proxyAnnotatedBeanNames;
 
-    private OpenApiManager openApiManager;
+	private OpenApiManager openApiManager;
 
-    @Lazy
-    @Autowired
-    private RestOperationsProvider proxyRestOperationsProvider;
+	@Lazy
+	@Autowired
+	private RestOperationsProvider proxyRestOperationsProvider;
 
-    @Lazy
-    @Autowired
-    private SpelExpressionEvaluator proxySpelExpressionEvaluator;
+	@Lazy
+	@Autowired
+	private SpelExpressionEvaluator proxySpelExpressionEvaluator;
 
-    @Lazy
-    @Qualifier("proxyRequestSupplier")
-    @Autowired
-    private Supplier<HttpServletRequest> proxyRequestSupplier;
+	@Lazy
+	@Autowired
+	@Qualifier("proxyObjectMapper")
+	private ObjectMapper proxyObjectMapper;
 
-    @Lazy
-    @Autowired
-    @Qualifier("proxyObjectMapper")
-    private ObjectMapper proxyObjectMapper;
+	@Lazy
+	@Autowired
+	private OpenAPI openApi;
 
-    @Lazy
-    @Autowired
-    private OpenAPI openApi;
+	@Lazy
+	@Autowired
+	private Optional<OpenApiProvider> openApiProvider;
 
-    @Lazy
-    @Autowired
-    private Optional<OpenApiProvider> openApiProvider;
+	@Lazy
+	@Autowired
+	private ProxyServers proxyServers;
 
-    @Lazy
-    @Autowired
-    private ProxyServers proxyServers;
+	@Lazy
+	@Autowired
+	private OpenApiRegistry openApiRegistry;
 
-    @Lazy
-    @Autowired
-    private OpenApiRegistry openApiRegistry;
+	@Lazy
+	@Autowired
+	@Qualifier("proxyRequestMappingHandlerMappingSupplier")
+	private Supplier<RequestMappingHandlerMapping> proxyRequestMappingHandlerMappingSupplier;
 
-    @Lazy
-    @Autowired
-    @Qualifier("proxyRequestMappingHandlerMappingSupplier")
-    private Supplier<RequestMappingHandlerMapping> proxyRequestMappingHandlerMappingSupplier;
+	@Autowired
+	public void init(GenericApplicationContext applicationContext) {
+		this.applicationContext = applicationContext;
+		this.openApiManager = new OpenApiManager(
+				new RequestMappingRegistrationHandler(this.proxyRequestMappingHandlerMappingSupplier),
+				this.openApiProvider.orElse(() -> this.openApi), this.openApiRegistry, this.proxyServers);
+		this.proxyAnnotatedBeanNames = List.of(applicationContext.getBeanNamesForAnnotation(Proxy.class));
+	}
 
-    @Autowired
-    public void init(GenericApplicationContext applicationContext) {
-        this.applicationContext = applicationContext;
-        this.openApiManager = new OpenApiManager(
-                new RequestMappingRegistrationHandler(this.proxyRequestMappingHandlerMappingSupplier),
-                this.openApiProvider.orElse(() -> this.openApi), this.openApiRegistry, this.proxyServers);
-        this.proxyAnnotatedBeanNames = List.of(applicationContext.getBeanNamesForAnnotation(Proxy.class));
-    }
+	@ConditionalOnMissingBean(ProxyServers.class)
+	@Bean
+	public ProxyServers proxyServers() {
+		return new ProxyServers(List.of());
+	}
 
-    @ConditionalOnMissingBean(ProxyServers.class)
-    @Bean
-    public ProxyServers proxyServers() {
-        return new ProxyServers(List.of());
-    }
+	@ConditionalOnMissingBean(name = "proxyObjectMapper")
+	@Bean
+	public ObjectMapper proxyObjectMapper() {
+		return new ObjectMapper();
+	}
 
-    @ConditionalOnMissingBean(name = "proxyObjectMapper")
-    @Bean
-    public ObjectMapper proxyObjectMapper() {
-        return new ObjectMapper();
-    }
+	@ConditionalOnMissingBean({ OpenAPI.class, OpenApiProvider.class })
+	@Bean
+	public OpenAPI proxyOpenApi() {
+		return new OpenAPI();
+	}
 
-    @ConditionalOnMissingBean({ OpenAPI.class, OpenApiProvider.class })
-    @Bean
-    public OpenAPI proxyOpenApi() {
-        return new OpenAPI();
-    }
+	@Bean
+	public Supplier<RequestMappingHandlerMapping> proxyRequestMappingHandlerMappingSupplier(
+			@Qualifier("requestMappingHandlerMapping") RequestMappingHandlerMapping requestMappingHandlerMapping) {
+		return () -> requestMappingHandlerMapping;
+	}
 
-    @ConditionalOnMissingBean(name = "proxyRequestSupplier")
-    @Bean
-    public Supplier<HttpServletRequest> proxyRequestSupplier(HttpServletRequest request) {
-        return () -> request;
-    }
+	@Override
+	public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
+		if (this.applicationContext != null) {
+			if (bean instanceof ProxyOptions) {
+				process((ProxyOptions) bean, bean);
+			}
+			else if (this.proxyAnnotatedBeanNames.contains(beanName)) {
+				process(new AnnotationProxyOptions(this.proxySpelExpressionEvaluator,
+						this.applicationContext.findAnnotationOnBean(beanName, Proxy.class), beanName), bean);
+			}
+		}
+		return bean;
+	}
 
-    @Bean
-    public Supplier<RequestMappingHandlerMapping> proxyRequestMappingHandlerMappingSupplier(
-            @Qualifier("requestMappingHandlerMapping") RequestMappingHandlerMapping requestMappingHandlerMapping) {
-        return () -> requestMappingHandlerMapping;
-    }
+	protected void process(ProxyOptions proxyOptions, Object proxyOptionsBean) throws BeansException {
+		var trimProxyOptions = new TrimProxyOptions(proxyOptions);
+		var proxyResourceLoader = new ProxyResourceLoader(trimProxyOptions, this.applicationContext,
+				this.proxyRestOperationsProvider);
+		this.openApiManager.parse(trimProxyOptions, proxyResourceLoader, (po, oa) -> buildProxyClient(po, oa))
+			.registerPathMappings(proxyOptionsBean);
+	}
 
-    @Override
-    public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
-        if (this.applicationContext != null) {
-            if (bean instanceof ProxyOptions) {
-                process((ProxyOptions) bean, bean);
-            }
-            else if (this.proxyAnnotatedBeanNames.contains(beanName)) {
-                process(new AnnotationProxyOptions(this.proxySpelExpressionEvaluator,
-                        this.applicationContext.findAnnotationOnBean(beanName, Proxy.class), beanName), bean);
-            }
-        }
-        return bean;
-    }
+	protected ProxyClient buildProxyClient(ProxyOptions proxyOptions, OpenAPI openApi) {
+		var target = getTarget(openApi, proxyOptions);
+		var restOperations = this.proxyRestOperationsProvider.getRestOperations(target);
+		return new ProxyClient(this.proxyRestOperationsProvider.isRetryEnabled(target), this.proxyObjectMapper,
+				restOperations,
+				() -> new ProxyHttpServletRequest(
+						((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest(),
+						proxyOptions.getPrefix()),
+				proxyOptions.getIgnoredRequestHeaders(), proxyOptions.getIgnoredResponseHeaders());
+	}
 
-    protected void process(ProxyOptions proxyOptions, Object proxyOptionsBean) throws BeansException {
-        var trimProxyOptions = new TrimProxyOptions(proxyOptions);
-        var proxyResourceLoader = new ProxyResourceLoader(trimProxyOptions, this.applicationContext,
-                this.proxyRestOperationsProvider);
-        this.openApiManager.parse(trimProxyOptions, proxyResourceLoader, (po, oa) -> buildProxyClient(po, oa))
-            .registerPathMappings(proxyOptionsBean);
-    }
+	protected String getTarget(OpenAPI openApi, ProxyOptions proxyOptions) {
+		return Optional.ofNullable(proxyOptions.getTarget())
+			.filter((target) -> !target.isBlank())
+			.orElseGet(() -> Optional.ofNullable(openApi)
+				.map((oa) -> oa.getServers().stream().map((server) -> server.getUrl()).findFirst().orElse(null))
+				.orElseThrow(() -> new IllegalArgumentException("No target URL found")));
+	}
 
-    protected ProxyClient buildProxyClient(ProxyOptions proxyOptions, OpenAPI openApi) {
-        var target = getTarget(openApi, proxyOptions);
-        var restOperations = this.proxyRestOperationsProvider.getRestOperations(target);
-        return new ProxyClient(this.proxyRestOperationsProvider.isRetryEnabled(target), this.proxyObjectMapper,
-                restOperations,
-                () -> new ProxyHttpServletRequest(this.proxyRequestSupplier.get(), proxyOptions.getPrefix()),
-                proxyOptions.getIgnoredRequestHeaders(), proxyOptions.getIgnoredResponseHeaders());
-    }
+	@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
+	private static final class TrimProxyOptions implements ProxyOptions {
 
-    protected String getTarget(OpenAPI openApi, ProxyOptions proxyOptions) {
-        return Optional.ofNullable(proxyOptions.getTarget())
-            .filter((target) -> !target.isBlank())
-            .orElseGet(() -> Optional.ofNullable(openApi)
-                .map((oa) -> oa.getServers().stream().map((server) -> server.getUrl()).findFirst().orElse(null))
-                .orElseThrow(() -> new IllegalArgumentException("No target URL found")));
-    }
+		private final ProxyOptions proxyOptions;
 
-    @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-    private static final class TrimProxyOptions implements ProxyOptions {
+		@Override
+		public String getSpecification() {
+			return trim(this.proxyOptions.getSpecification());
+		}
 
-        private final ProxyOptions proxyOptions;
+		@Override
+		public String getPrefix() {
+			return trim(this.proxyOptions.getPrefix());
+		}
 
-        @Override
-        public String getSpecification() {
-            return trim(this.proxyOptions.getSpecification());
-        }
+		@Override
+		public String getTarget() {
+			return trim(this.proxyOptions.getTarget());
+		}
 
-        @Override
-        public String getPrefix() {
-            return trim(this.proxyOptions.getPrefix());
-        }
+		@Override
+		public List<String> getIgnoredRequestHeaders() {
+			return Optional.ofNullable(this.proxyOptions.getIgnoredRequestHeaders())
+				.map((headers) -> headers.stream().map(TrimProxyOptions::trim).toList())
+				.orElse(null);
+		}
 
-        @Override
-        public String getTarget() {
-            return trim(this.proxyOptions.getTarget());
-        }
+		@Override
+		public List<String> getIgnoredResponseHeaders() {
+			return Optional.ofNullable(this.proxyOptions.getIgnoredResponseHeaders())
+				.map((headers) -> headers.stream().map(TrimProxyOptions::trim).toList())
+				.orElse(null);
+		}
 
-        @Override
-        public List<String> getIgnoredRequestHeaders() {
-            return Optional.ofNullable(this.proxyOptions.getIgnoredRequestHeaders())
-                .map((headers) -> headers.stream().map(TrimProxyOptions::trim).toList())
-                .orElse(null);
-        }
+		private static String trim(String value) {
+			return Optional.ofNullable(value).map((v) -> v.trim()).orElse(null);
+		}
 
-        @Override
-        public List<String> getIgnoredResponseHeaders() {
-            return Optional.ofNullable(this.proxyOptions.getIgnoredResponseHeaders())
-                .map((headers) -> headers.stream().map(TrimProxyOptions::trim).toList())
-                .orElse(null);
-        }
-
-        private static String trim(String value) {
-            return Optional.ofNullable(value).map((v) -> v.trim()).orElse(null);
-        }
-
-    }
+	}
 
 }

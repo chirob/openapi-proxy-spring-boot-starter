@@ -34,27 +34,27 @@ import lombok.RequiredArgsConstructor;
 @RestController
 public class TestController {
 
-    private List<Cat> catStore;
+	private List<Cat> catStore;
 
-    {
-        try {
-            this.catStore = new ObjectMapper().readValue(getClass().getResourceAsStream("/cats.json"),
-                    new TypeReference<List<Cat>>() {
-                    });
-        }
-        catch (IOException ex) {
-            throw new IllegalArgumentException(ex);
-        }
-    }
+	{
+		try {
+			this.catStore = new ObjectMapper().readValue(getClass().getResourceAsStream("/cats.json"),
+					new TypeReference<List<Cat>>() {
+					});
+		}
+		catch (IOException ex) {
+			throw new IllegalArgumentException(ex);
+		}
+	}
 
-    @GetMapping("/cats")
-    public List<Cat> getCats() {
-        return this.catStore;
-    }
+	@GetMapping("/cats")
+	public List<Cat> getCats() {
+		return this.catStore;
+	}
 
-    @PostMapping("/cats")
-    public void postCats(@RequestBody List<Cat> cats) {
-        this.catStore.addAll(cats);
-    }
+	@PostMapping("/cats")
+	public void postCats(@RequestBody List<Cat> cats) {
+		this.catStore.addAll(cats);
+	}
 
 }

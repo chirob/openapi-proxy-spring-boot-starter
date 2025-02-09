@@ -25,26 +25,26 @@ import lombok.ToString;
 @Data
 public class Cat {
 
-    private Status status;
+	private Status status;
 
-    private String get_id;
+	private String get_id;
 
-    private String type;
+	private String type;
 
-    private String user;
+	private String user;
 
-    private String text;
+	private String text;
 
-    private int get__v;
+	private int get__v;
 
-    private String source;
+	private String source;
 
-    private Date createdAt;
+	private Date createdAt;
 
-    private Date updatedAt;
+	private Date updatedAt;
 
-    private boolean deleted;
+	private boolean deleted;
 
-    private boolean used;
+	private boolean used;
 
 }
